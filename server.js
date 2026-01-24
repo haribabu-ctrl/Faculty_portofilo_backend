@@ -16,6 +16,13 @@ connectDB();
 
 app.use(cors());
 app.use(express.json());
+app.get("/api/users", (req, res) => {
+  res.json([
+    { name: "Hari", email: "hari@example.com" },
+    { name: "Ramu", email: "ramu@example.com" }
+  ]);
+});
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
