@@ -19,7 +19,9 @@ const userschema = new mongoose.Schema({
     employeeId : String,
     designation : String,
     department : String,
-    dateOfJoining : String,
+    dateOfJoining : {
+        type : Date,
+    },
     qualification : {
         type :  String,
         enum : ['PhD','Non-PhD'],
