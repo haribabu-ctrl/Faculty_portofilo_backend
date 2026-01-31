@@ -37,17 +37,17 @@ router.post("/:table", upload.single("file"), async (req, res) => {
     const docs = data
       .filter(r => r["Employee ID"] && r["Course Name"] && r["Sem-Branch-Sec"])
       .map(row => ({
-        employeeId: parseNum(row["Employee ID"]), // S1/S2/S3/S4 required
+        employeeId: parseNum(row["Employee ID"]),
         courseName: row["Course Name"].trim(),
-        semBranchSec: row["Sem-Branch-Sec"].trim(),
-        appeared: parseNum(row["No. of students appeared (A)"]),
-        passed: parseNum(row["No. of students Passed (B)"])
+        semBranch: row["Sem-Branch-Sec"].trim(),
+        appearedStudents: parseNum(row["No. of students appeared (A)"]),
+        passedStudents: parseNum(row["No. of students Passed (B)"])
       }));
 
     for (const doc of docs) {
       await Model.updateOne(
-        { employeeId: doc.employeeId }, 
-        { $set: doc }, 
+        { employeeId: doc.employeeId },
+        { $set: doc },
         { upsert: true }
       );
     }

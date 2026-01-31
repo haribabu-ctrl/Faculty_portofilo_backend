@@ -7,27 +7,23 @@ const resultSchema1 = new mongoose.Schema(
       required: true,
       trim: true
     },
-
     courseName: {
       type: String,
       required: true,
       trim: true
     },
-
     semBranch: {
-      type: String,   
+      type: String,
       required: true,
       trim: true
     },
-
     appearedStudents: {
-      type: Number,  
+      type: Number,
       required: true,
       min: 0
     },
-
     passedStudents: {
-      type: Number,   
+      type: Number,
       required: true,
       min: 0
     }
