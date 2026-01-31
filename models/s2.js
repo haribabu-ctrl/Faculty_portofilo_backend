@@ -1,8 +1,40 @@
 const mongoose = require("mongoose");
 
-const s2Schema = new mongoose.Schema({
-  userId: { type: String, required: true, unique: true },
-  s2Feedback: { type: [Number], required: true }
-});
+const resultSchema2 = new mongoose.Schema(
+  {
+    employeeId: {
+      type: Number,
+      required: true,
+      trim: true
+    },
 
-module.exports = mongoose.model("S2", s2Schema);
+    courseName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    semBranch: {
+      type: String,   
+      required: true,
+      trim: true
+    },
+
+    appearedStudents: {
+      type: Number,  
+      required: true,
+      min: 0
+    },
+
+    passedStudents: {
+      type: Number,   
+      required: true,
+      min: 0
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+module.exports = mongoose.model("S2", resultSchema2);

@@ -1,9 +1,40 @@
 const mongoose = require("mongoose");
 
-const s4Schema = new mongoose.Schema({
-  userId: { type: String, required: true, unique: true },
-  s4A: { type: [Number], required: true },
-  s4B: { type: [Number], required: true }
-});
+const resultSchema4 = new mongoose.Schema(
+  {
+    employeeId: {
+      type: Number,
+      required: true,
+      trim: true
+    },
 
-module.exports = mongoose.model("S4", s4Schema);
+    courseName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    semBranch: {
+      type: String,   
+      required: true,
+      trim: true
+    },
+
+    appearedStudents: {
+      type: Number, 
+      required: true,
+      min: 0
+    },
+
+    passedStudents: {
+      type: Number,   
+      required: true,
+      min: 0
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+module.exports = mongoose.model("S4", resultSchema4);

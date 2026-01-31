@@ -1,26 +1,40 @@
 const mongoose = require("mongoose");
 
-const schema = new mongoose.Schema({
-  employeeId: {
-    type: Number,
-    required: true
-  },
-  courseName: {
-    type: String,
-    required: true
-  },
-  semBranchSec: {
-    type: String,
-    required: true
-  },
-  appeared: {
-    type: Number,
-    required: true
-  },
-  passed: {
-    type: Number,
-    required: true
-  }
-});
+const resultSchema1 = new mongoose.Schema(
+  {
+    employeeId: {
+      type: Number,
+      required: true,
+      trim: true
+    },
 
-module.exports = mongoose.model("S1", schema);
+    courseName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    semBranch: {
+      type: String,   
+      required: true,
+      trim: true
+    },
+
+    appearedStudents: {
+      type: Number,  
+      required: true,
+      min: 0
+    },
+
+    passedStudents: {
+      type: Number,   
+      required: true,
+      min: 0
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+module.exports = mongoose.model("S1", resultSchema1);

@@ -1,9 +1,40 @@
 const mongoose = require("mongoose");
 
-const s3Schema = new mongoose.Schema({
-  userId: { type: String, required: true, unique: true },
-  s3A: { type: [Number], required: true },
-  s3B: { type: [Number], required: true }
-});
+const resultSchema3 = new mongoose.Schema(
+  {
+    employeeId: {
+      type: Number,
+      required: true,
+      trim: true
+    },
 
-module.exports = mongoose.model("S3", s3Schema);
+    courseName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    semBranch: {
+      type: String,   
+      required: true,
+      trim: true
+    },
+
+    appearedStudents: {
+      type: Number, 
+      required: true,
+      min: 0
+    },
+
+    passedStudents: {
+      type: Number,   
+      required: true,
+      min: 0
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+module.exports = mongoose.model("S3", resultSchema3);
