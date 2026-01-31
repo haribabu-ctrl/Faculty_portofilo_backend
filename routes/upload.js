@@ -23,6 +23,16 @@ const parseNum = (v) => {
   return isNaN(n) ? 0 : n;
 };
 
+// 🔥 Robust CSV header getter (handles spaces, case, BOM)
+const getVal = (row, key) => {
+  const foundKey = Object.keys(row).find(
+    k =>
+      k.replace(/\ufeff/g, "").trim().toLowerCase() ===
+      key.trim().toLowerCase()
+  );
+  return foundKey ? row[foundKey] : "";
+};
+
 // ==================== Upload Route ====================
 router.post("/:table", upload.single("file"), async (req, res) => {
   try {
@@ -30,18 +40,30 @@ router.post("/:table", upload.single("file"), async (req, res) => {
     const Model = modelMap[tableName];
     if (!Model) return res.status(400).json({ error: "Invalid table" });
 
-    if (!req.file) return res.status(400).json({ error: "CSV/Excel file is required" });
+    if (!req.file)
+      return res.status(400).json({ error: "CSV/Excel file is required" });
 
     const data = await csv().fromFile(req.file.path);
 
+    // 🧪 Debug once if needed
+    // console.log(Object.keys(data[0]));
+
     const docs = data
-      .filter(r => r["Employee ID"] && r["Course Name"] && r["Sem-Branch-Sec"])
+      .filter(r =>
+        getVal(r, "Employee ID") &&
+        getVal(r, "Course Name") &&
+        getVal(r, "Sem-Branch-Sec")
+      )
       .map(row => ({
-        employeeId: parseNum(row["Employee ID"]),
-        courseName: row["Course Name"].trim(),
-        semBranch: row["Sem-Branch-Sec"].trim(),
-        appearedStudents: parseNum(row["No. of students appeared (A)"]),
-        passedStudents: parseNum(row["No. of students Passed (B)"])
+        employeeId: parseNum(getVal(row, "Employee ID")),
+        courseName: getVal(row, "Course Name").trim(),
+        semBranch: getVal(row, "Sem-Branch-Sec").trim(),
+        appearedStudents: parseNum(
+          getVal(row, "No. of students appeared (A)")
+        ),
+        passedStudents: parseNum(
+          getVal(row, "No. of students Passed (B)")
+        )
       }));
 
     for (const doc of docs) {
@@ -54,7 +76,10 @@ router.post("/:table", upload.single("file"), async (req, res) => {
 
     await fs.unlink(req.file.path);
 
-    res.json({ message: `${tableName.toUpperCase()} uploaded successfully`, inserted: docs.length });
+    res.json({
+      message: `${tableName.toUpperCase()} uploaded successfully`,
+      inserted: docs.length
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
