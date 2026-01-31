@@ -40,8 +40,8 @@ router.post("/:table", upload.single("file"), async (req, res) => {
         employeeId: parseNum(row["Employee ID"]),
         courseName: row["Course Name"].trim(),
         semBranch: row["Sem-Branch-Sec"].trim(),
-        appearedStudents: parseNum(row["No. of students appeared (A)"]),
-        passedStudents: parseNum(row["No. of students Passed (B)"])
+        appearedStudents: parseNum(row["appeared"]),
+        passedStudents: parseNum(row["passed"])
       }));
 
     for (const doc of docs) {
