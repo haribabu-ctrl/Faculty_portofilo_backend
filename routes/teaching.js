@@ -16,20 +16,30 @@ const modelMap = {
 
 router.get("/:table/:userId", async (req, res) => {
   try {
-    const table = req.params.table.toLowerCase();
-    const userId = req.params.userId;
+    const table = req.params.table.toLowerCase().trim();
+    const userId = req.params.userId.trim();
 
     const Model = modelMap[table];
     if (!Model) {
-      return res.status(400).json({ error: "Invalid table" });
+      return res.status(400).json({ error: "Invalid table name" });
     }
 
-    const data = await Model.find({ userId });
-    res.json(data);
+    const data = await Model
+      .find({ userId })
+      .sort({ courseName: 1 })   // A-Z order
+      .lean();
+
+    return res.json({
+      success: true,
+      table,
+      userId,
+      count: data.length,
+      data
+    });
 
   } catch (error) {
     console.error("Error fetching data:", error);
-    res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 

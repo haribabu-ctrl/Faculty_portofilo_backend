@@ -23,7 +23,7 @@ const parseNum = (v) => {
   return isNaN(n) ? 0 : n;
 };
 
-// 🔥 Robust CSV header getter (handles spaces, case, BOM)
+// Robust CSV header getter
 const getVal = (row, key) => {
   const foundKey = Object.keys(row).find(
     k =>
@@ -36,39 +36,35 @@ const getVal = (row, key) => {
 // ==================== Upload Route ====================
 router.post("/:table", upload.single("file"), async (req, res) => {
   try {
-    const tableName = req.params.table.toLowerCase();
+    const tableName = req.params.table.toLowerCase().trim();
     const Model = modelMap[tableName];
     if (!Model) return res.status(400).json({ error: "Invalid table" });
 
     if (!req.file)
-      return res.status(400).json({ error: "CSV/Excel file is required" });
+      return res.status(400).json({ error: "CSV file is required" });
 
     const data = await csv().fromFile(req.file.path);
 
-    // 🧪 Debug once if needed
-    // console.log(Object.keys(data[0]));
-
     const docs = data
       .filter(r =>
-        getVal(r, "Employee ID") &&
-        getVal(r, "Course Name") &&
-        getVal(r, "Sem-Branch-Sec")
+        getVal(r, "userId") &&
+        getVal(r, "courseName") &&
+        getVal(r, "semBranchSec")
       )
       .map(row => ({
-        employeeId: parseNum(getVal(row, "Employee ID")),
-        courseName: getVal(row, "Course Name").trim(),
-        semBranch: getVal(row, "Sem-Branch-Sec").trim(),
-        appearedStudents: parseNum(
-          getVal(row, "No. of students appeared (A)")
-        ),
-        passedStudents: parseNum(
-          getVal(row, "No. of students Passed (B)")
-        )
+        userId: getVal(row, "userId").trim(),
+        courseName: getVal(row, "courseName").trim(),
+        semBranchSec: getVal(row, "semBranchSec").trim(),
+        appearedA: parseNum(getVal(row, "appearedA")),
+        passedB: parseNum(getVal(row, "passedB"))
       }));
 
     for (const doc of docs) {
       await Model.updateOne(
-        { employeeId: doc.employeeId },
+        {
+          userId: doc.userId,
+          courseName: doc.courseName
+        },
         { $set: doc },
         { upsert: true }
       );
@@ -77,11 +73,12 @@ router.post("/:table", upload.single("file"), async (req, res) => {
     await fs.unlink(req.file.path);
 
     res.json({
-      message: `${tableName.toUpperCase()} uploaded successfully`,
+      success: true,
+      table: tableName,
       inserted: docs.length
     });
   } catch (err) {
-    console.error(err);
+    console.error("Upload error:", err);
     res.status(500).json({ error: err.message });
   }
 });

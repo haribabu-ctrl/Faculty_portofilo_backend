@@ -2,27 +2,31 @@ const mongoose = require("mongoose");
 
 const resultSchema1 = new mongoose.Schema(
   {
-    employeeId: {
-      type: Number,
+    userId: {
+      type: String,        // better than Number
       required: true,
       trim: true
     },
+
     courseName: {
       type: String,
       required: true,
       trim: true
     },
-    semBranch: {
+
+    semBranchSec: {
       type: String,
       required: true,
       trim: true
     },
-    appearedStudents: {
+
+    appearedA: {
       type: Number,
       required: true,
       min: 0
     },
-    passedStudents: {
+
+    passedB: {
       type: Number,
       required: true,
       min: 0

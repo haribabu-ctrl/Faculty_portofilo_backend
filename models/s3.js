@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const resultSchema3 = new mongoose.Schema(
   {
-    employeeId: {
-      type: Number,
+    userId: {
+      type: String,        // better than Number
       required: true,
       trim: true
     },
@@ -14,20 +14,20 @@ const resultSchema3 = new mongoose.Schema(
       trim: true
     },
 
-    semBranch: {
-      type: String,   
+    semBranchSec: {
+      type: String,
       required: true,
       trim: true
     },
 
-    appearedStudents: {
-      type: Number, 
+    appearedA: {
+      type: Number,
       required: true,
       min: 0
     },
 
-    passedStudents: {
-      type: Number,   
+    passedB: {
+      type: Number,
       required: true,
       min: 0
     }
