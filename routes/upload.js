@@ -18,21 +18,17 @@ const upload = multer({ dest: "uploads/" });
 const modelMap = { s1: S1, s2: S2, s3: S3, s4: S4 };
 
 // ---------- Helpers ----------
-
-// Safe number parser
 const parseNum = (v) => {
   if (v === undefined || v === null || v === "") return 0;
   const n = Number(v);
   return isNaN(n) ? 0 : n;
 };
 
-// Convert anything to safe trimmed string
 const toStr = (v) => {
   if (v === undefined || v === null) return "";
   return String(v).trim();
 };
 
-// Robust header getter (CSV + XLSX)
 const getVal = (row, key) => {
   const foundKey = Object.keys(row).find(
     k =>
@@ -57,25 +53,22 @@ router.post("/:table", upload.single("file"), async (req, res) => {
 
     let data = [];
 
-    // ================= CSV =================
+    // CSV
     if (originalName.endsWith(".csv")) {
       data = await csv().fromFile(filePath);
     }
-
-    // ================= XLSX =================
+    // XLSX
     else if (originalName.endsWith(".xlsx") || originalName.endsWith(".xls")) {
       const workbook = xlsx.readFile(filePath);
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       data = xlsx.utils.sheet_to_json(sheet, { defval: "" });
-    }
-
+    } 
     else {
       await fs.unlink(filePath);
       return res.status(400).json({ error: "Only CSV or Excel files allowed" });
     }
 
-    // ================= Map to DB =================
     const docs = data
       .filter(r =>
         toStr(getVal(r, "userId")) &&
@@ -90,18 +83,8 @@ router.post("/:table", upload.single("file"), async (req, res) => {
         passedB: parseNum(getVal(row, "passedB"))
       }));
 
-    // Upsert into MongoDB
-    for (const doc of docs) {
-      await Model.updateOne(
-        {
-          userId: doc.userId,
-          courseName: doc.courseName,
-          semBranchSec: doc.semBranchSec
-        },
-        { $set: doc },
-        { upsert: true }
-      );
-    }
+    // 🔥 INSERT ALL (no overwrite)
+    await Model.insertMany(docs);
 
     await fs.unlink(filePath);
 
