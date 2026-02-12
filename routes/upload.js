@@ -17,6 +17,8 @@ const upload = multer({ dest: "uploads/" });
 // Map table param to Model
 const modelMap = { s1: S1, s2: S2, s3: S3, s4: S4 };
 
+// ---------- Helpers ----------
+
 // Safe number parser
 const parseNum = (v) => {
   if (v === undefined || v === null || v === "") return 0;
@@ -24,7 +26,13 @@ const parseNum = (v) => {
   return isNaN(n) ? 0 : n;
 };
 
-// Robust header getter
+// Convert anything to safe trimmed string
+const toStr = (v) => {
+  if (v === undefined || v === null) return "";
+  return String(v).trim();
+};
+
+// Robust header getter (CSV + XLSX)
 const getVal = (row, key) => {
   const foundKey = Object.keys(row).find(
     k =>
@@ -59,7 +67,7 @@ router.post("/:table", upload.single("file"), async (req, res) => {
       const workbook = xlsx.readFile(filePath);
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      data = xlsx.utils.sheet_to_json(sheet);
+      data = xlsx.utils.sheet_to_json(sheet, { defval: "" });
     }
 
     else {
@@ -70,14 +78,14 @@ router.post("/:table", upload.single("file"), async (req, res) => {
     // ================= Map to DB =================
     const docs = data
       .filter(r =>
-        getVal(r, "userId") &&
-        getVal(r, "courseName") &&
-        getVal(r, "semBranchSec")
+        toStr(getVal(r, "userId")) &&
+        toStr(getVal(r, "courseName")) &&
+        toStr(getVal(r, "semBranchSec"))
       )
       .map(row => ({
-        userId: getVal(row, "userId").trim(),
-        courseName: getVal(row, "courseName").trim(),
-        semBranchSec: getVal(row, "semBranchSec").trim(),
+        userId: toStr(getVal(row, "userId")),
+        courseName: toStr(getVal(row, "courseName")),
+        semBranchSec: toStr(getVal(row, "semBranchSec")),
         appearedA: parseNum(getVal(row, "appearedA")),
         passedB: parseNum(getVal(row, "passedB"))
       }));
