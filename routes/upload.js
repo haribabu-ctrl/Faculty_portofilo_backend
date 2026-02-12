@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const csv = require("csvtojson");
+const xlsx = require("xlsx");
 const fs = require("fs").promises;
 
 const S1 = require("../models/s1");
@@ -23,7 +24,7 @@ const parseNum = (v) => {
   return isNaN(n) ? 0 : n;
 };
 
-// Robust CSV header getter
+// Robust header getter
 const getVal = (row, key) => {
   const foundKey = Object.keys(row).find(
     k =>
@@ -41,10 +42,32 @@ router.post("/:table", upload.single("file"), async (req, res) => {
     if (!Model) return res.status(400).json({ error: "Invalid table" });
 
     if (!req.file)
-      return res.status(400).json({ error: "CSV file is required" });
+      return res.status(400).json({ error: "File is required" });
 
-    const data = await csv().fromFile(req.file.path);
+    const filePath = req.file.path;
+    const originalName = req.file.originalname.toLowerCase();
 
+    let data = [];
+
+    // ================= CSV =================
+    if (originalName.endsWith(".csv")) {
+      data = await csv().fromFile(filePath);
+    }
+
+    // ================= XLSX =================
+    else if (originalName.endsWith(".xlsx") || originalName.endsWith(".xls")) {
+      const workbook = xlsx.readFile(filePath);
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      data = xlsx.utils.sheet_to_json(sheet);
+    }
+
+    else {
+      await fs.unlink(filePath);
+      return res.status(400).json({ error: "Only CSV or Excel files allowed" });
+    }
+
+    // ================= Map to DB =================
     const docs = data
       .filter(r =>
         getVal(r, "userId") &&
@@ -59,24 +82,27 @@ router.post("/:table", upload.single("file"), async (req, res) => {
         passedB: parseNum(getVal(row, "passedB"))
       }));
 
+    // Upsert into MongoDB
     for (const doc of docs) {
       await Model.updateOne(
         {
           userId: doc.userId,
-          courseName: doc.courseName
+          courseName: doc.courseName,
+          semBranchSec: doc.semBranchSec
         },
         { $set: doc },
         { upsert: true }
       );
     }
 
-    await fs.unlink(req.file.path);
+    await fs.unlink(filePath);
 
     res.json({
       success: true,
       table: tableName,
       inserted: docs.length
     });
+
   } catch (err) {
     console.error("Upload error:", err);
     res.status(500).json({ error: err.message });

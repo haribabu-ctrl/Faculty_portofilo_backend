@@ -25,8 +25,8 @@ router.get("/:table/:userId", async (req, res) => {
     }
 
     const data = await Model
-      .find({ userId })
-      .sort({ courseName: 1 })   // A-Z order
+      .find({ userId })  
+      .sort({ courseName: 1 })
       .lean();
 
     return res.json({
@@ -42,5 +42,4 @@ router.get("/:table/:userId", async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
-
 module.exports = router;
