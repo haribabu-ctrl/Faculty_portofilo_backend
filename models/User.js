@@ -21,6 +21,7 @@ const userschema = new mongoose.Schema({
     department : String,
     dateOfJoining : {
         type : Date,
+        default : Date.now
     },
     qualification : {
         type :  String,

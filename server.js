@@ -9,6 +9,11 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const uploadRoutes = require("./routes/upload");
 const teachingRoutes = require("./routes/teaching");
+const expertiseRoutes = require("./routes/expertiseRoutes");
+const administrationRoutes = require("./routes/administrationRoutes");
+const interpersonalRoutes = require("./routes/interpersonalRoutes");
+const portfolioRoutes = require("./routes/portofiloRoutes");
+const paperPublicationRoutes = require("./routes/paperPublicationRoutes");
 
 const app = express();
 
@@ -34,6 +39,12 @@ app.get("/api/users", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/teaching", teachingRoutes);
+app.use("/api/expertise", expertiseRoutes);
+app.use("/api/administration", administrationRoutes);
+app.use("/api/interpersonal", interpersonalRoutes);
+app.use("/api/portfolio", portfolioRoutes);
+app.use("/api/paperPublication",paperPublicationRoutes);
+
 
 // ================== Global Error Handler (Optional but Good) ==================
 app.use((err, req, res, next) => {
@@ -44,5 +55,5 @@ app.use((err, req, res, next) => {
 // ================== Server ==================
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(` Server running on port ${PORT}`);
 });
