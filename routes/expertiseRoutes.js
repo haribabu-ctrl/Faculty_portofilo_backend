@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 
-const Expertise = require("../models/expertisemodel");
+const Expertise = require("../models/expertiseModel1");
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb){
