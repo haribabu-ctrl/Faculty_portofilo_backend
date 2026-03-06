@@ -20,6 +20,7 @@ router.post("/add", upload.single("pdf"), async (req,res)=>{
   try{
 
     const newExpertise = new Expertise({
+      fac:req.body.fac,
       event:req.body.event,
       role:req.body.role,
       duration:req.body.duration,

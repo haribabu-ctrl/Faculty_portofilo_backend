@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const expertiseSchema = new mongoose.Schema({
+  fac : String,
   event: String,
   role: String,
   duration: String,
